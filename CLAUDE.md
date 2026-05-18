@@ -173,3 +173,230 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - Do NOT delete tests without approval.
 
 </laravel-boost-guidelines>
+
+# Descripcion:
+
+Sistema de control de proceso de creacion de contenido, basado en la metodologia de 4 pasos para documentar trabajo cotidiano:
+  - Capturar
+  - Procesar
+  - Transformar
+  - Publicar
+Este sistema se enfocara en la etapa 2: Procesar y parte de la etapa 3: transformar. Permitiendo asi tener almacenadas de forma ordenada las notas, su procesamiento, hasta la conversion a scripts para reels o post para linkedin o blog inicialmente aunque se pueden considerar el almacenamiento para otro tipo de formatos. Esto permitira obtener metricas y hacer analisis a lo largo del tiempo de la evolucion de este proceso de creacion de contenido.
+
+El punto de partida en cuanto a herramientas a utilizar por fase son:
+Captura:
+  • Google Keep (en sistema este metodo sera remplazado por telegram bot)
+  • OBS (grabar pantalla)
+  • Snipping tool (recortes y capturas de pantalla)
+
+Procesamiento:
+  • Para ordenar el contenido se usa actualmente onenote y se usara el sistema cuando este desarrollado.
+  • Procesadores de texto como block de notas, word
+
+Transformacion:
+  • Video: capcut
+  • IA (chatgpt o claude): Apoyo y revision de scripts, posts y blogs
+
+Publicacion:
+  • Plataforma especifica segun tipo de contenido
+
+Objetivos:
+  Objetivo principal: Almacenar la informacion de la fase 2 y fase 3 para poder dar seguimieto y mejorar de manera iterativa el proceso de creacion de contenido automatizando sistematicamente las tareas repetitivas que segun la experiencia esten causando mayor friccion.
+  
+  Objetivos especificos:
+    ○ Almacenar la notas provenientes de keep u otro medio
+    ○ Almacenar las rutas donde se encuentra el contenido multimedia
+    ○ Categorizar la nota segun el tipo de contenido y el medio a publicar
+    ○ Desarrollar la idea (escribir el texto extendido proveniente de la nota)
+    ○ Visualizar el estado de la nota (desechadas, pendiente, procesando, finalizado, publicado)
+    ○ Dashboard (metricas relevantes: Cantidad de notas totales y por estado, cantidad de contenido publicado por canal, frecuencia promedio de publicacion).
+
+## Casos de uso:
+
+Caso de uso: 
+Actor principal: 
+Descripcion: 
+Pre-condiciones: 
+Flujo basico:
+Flujo alternativo: 
+Post-condiciones:
+
+### Caso de uso: Gestión de notas
+Actor principal: Usuario
+Descripcion: El usuario puede Crear una nota en el sistema o entrar a una importada desde el bot de telegram, con las notas el usuario puede modificarlas, desecharlas o categorizarlas por insight, decision o historia.
+Pre-condiciones: 
+  • Estar logeado como usuario (basico)
+Flujo basico: Categorizar nota
+  • Seleccionar una nota
+  • Revisar nota y determinar si esa idea puede ser util para la audiencia
+  • Categorizarla por insight, decision o historia
+Flujo alternativo: Crear nota
+  • Dar clic a crear nota
+  • Escribir la nota
+  • Guardar
+Flujo alternativo: Modificar nota
+  • Seleccionar una nota creado o importada
+  • Modificar su contenido
+  • Guardar modificacion
+Flujo alternativo: Desechar nota
+  • Seleccionar nota
+  • Revisar nota y determinar si la nota no tiene contenido relevante para la audiencia
+  • Desechar
+Post-condiciones:
+
+### Caso de uso: Gestion del script
+Actor principal: Usuario (basico)
+Descripcion: Despues de categorizar una nota el usuario debe desarrollarla idea base sobre esa nota, determinar objetivo principal (que es lo desea transmitir con ese contenido), la estructura que tiene en mente y el hilo narrativo del script.
+Pre-condiciones: 
+  • Haber categorizado la nota
+Flujo basico: Desarrollo base de script
+  • Seleccionar la nota
+  • Seleccionar el canal para el cual estas preparando el script
+  • Escribir el script inicial segun las instrucciones propuestas
+  • Guardar el script
+Flujo alternativo: Edicion y revision con IA
+  • Copiar el script y pasarla a un modelo LLM (ChatGPT, Claude, Gemini)
+  • Darle el contexto y las indicaciones (Aca pudiese desarrollar una skill para este trabajo)
+  • Obtener el resultado
+  • Iterar si es necesario
+Flujo alternativo: Edicion y revision del script generado por IA
+  • Leer el script generado por la IA
+  • Editar las partes que no resuenan con tu tono y mensaje
+  • Guardar el script ya revisado por ti
+Flujo alternativo: Archivar nota
+  • Seleccionar una nota
+  • Dar clic al boton archivar
+Post-condiciones:
+  • Si es necesario, apoyarse con la IA para enriquecer y mejorar la estructura del script
+
+## Arquitectura y decisiones tecnicas:
+
+Lenguaje y Framework 
+  • Lenguaje: PHP 8.5
+  • Framework: Laravel 13
+  • Librerias: Fortify, Livewire, spatie, datatable, sweetAlert.
+  • Arquitectura: En capas (Layered Architecture)
+
+Descripción general de la arquitectura
+El sistema está construido bajo una arquitectura en capas, con el objetivo de lograr separación de responsabilidades, facilidad de mantenimiento, y extensibilidad del código.
+Cada capa cumple una función específica dentro del flujo de una petición, permitiendo que los cambios en una parte del sistema no afecten otras.
+El flujo general es el siguiente:
+
+Usuario → Controller → Model → Base de Datos
+
+## Estructura de carpetas
+
+├── app
+│   ├── Http
+│   │   ├── Controllers
+│   │   │   ├── NoteController.php
+│   │   │   ├── ScriptController.php
+│   │   │   ├── ExternalRevisionController.php
+│   │   │   ├── PublishLogController.php
+│   │   │   └── DashboardController.php
+│   │   ├── Middleware
+│   │   │   └── EnsureNoteOwner.php
+│   │   └── Requests
+│   │       ├── StoreNoteRequest.php
+│   │       ├── UpdateNoteRequest.php
+│   │       ├── StoreScriptRequest.php
+│   │       ├── StoreExternalRevisionRequest.php
+│   │       └── StorePublishLogRequest.php
+│   ├── Models
+│   │   ├── User.php
+│   │   ├── Note.php
+│   │   ├── NoteAttachment.php
+│   │   ├── NoteScript.php
+│   │   ├── ExternalRevision.php
+│   │   ├── PublishLog.php
+│   │   └── Channel.php
+│   ├── Telegram
+│   │   └── Handlers
+│   │       ├── InitNoteCommandHandler.php
+│   │       └── FinishNoteCommandHandler.php
+│   ├── Policies
+│   │   ├── NotePolicy.php
+│   │   └── ScriptPolicy.php
+│   └── Providers
+│       └── AppServiceProvider.php
+├── bootstrap
+├── config
+│   └── telegram.php
+├── database
+│   ├── migrations
+│   └── seeders
+│       └── RolesAndPermissionsSeeder.php
+├── public
+├── resources
+│   └── views
+│       ├── components
+│       │   ├── note-list.blade.php
+│       │   ├── note-form.blade.php
+│       │   ├── note-detail.blade.php
+│       │   ├── script-editor.blade.php
+│       │   ├── external-revision-form.blade.php
+│       │   └── dashboard-metrics.blade.php
+│       ├── pages
+│       │   ├── notes-index.blade.php
+│       │   ├── notes-create.blade.php
+│       │   ├── notes-show.blade.php
+│       │   ├── script-create.blade.php
+│       │   ├── script-show.blade.php
+│       │   └── dashboard.blade.php
+│       └── layouts
+│           └── app.blade.php
+├── routes
+│   ├── web.php
+│   ├── api.php
+│   └── telegram.php
+├── storage
+│   └── app
+│       └── notes
+│           ├── voice
+│           ├── images
+│           └── documents
+└── tests
+    └── Feature
+        ├── NoteTest.php
+        ├── ScriptTest.php
+        └── TelegramWebhookTest.php
+
+Users
+- id (PK)
+- name
+- email
+- email_verified_at
+- password
+- timestamps
+
+Notes
+- id (PK)
+- user_id (FK → Users)
+- channel_id (FK → Channels)
+- state_id (FK → States)
+- content
+- timestamps
+
+Channels
+- id (PK)
+- name
+- description
+
+States
+- id (PK)
+- name
+- description
+
+Scripts
+- id (PK)
+- note_id (FK → Notes)
+- classification_id (FK → Classifications)
+- state_id (FK → States)
+- content
+- timestamps
+
+Classifications
+- id (PK)
+- name
+- description
+- timestamps
